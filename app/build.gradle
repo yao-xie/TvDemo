@@ -1,0 +1,83 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 29
+    buildToolsVersion "29.0.2"
+
+    def localProperties = new Properties()
+    localProperties.load(new FileInputStream(rootProject.file("local.properties")))
+    def apiKey = localProperties['apiKey']
+
+    defaultConfig {
+        applicationId "com.xieyao.tvapp"
+        minSdkVersion 21
+        targetSdkVersion 29
+        versionCode 1
+        versionName "1.0"
+
+        buildConfigField "String", "API_KEY", "\"${apiKey}\""
+        buildConfigField "String", "BASE_URL", "\"http://api.themoviedb.org/3/\""
+        buildConfigField "String", "BASE_URL_IMG", "\"http://image.tmdb.org/t/p/\""
+        buildConfigField "String", "BASE_URL_IMG_POSTER_SIZE", "\"w342\""
+        buildConfigField "String", "BASE_URL_IMG_BACKDROP_SIZE", "\"w780\""
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+ext {
+    leanback_version = "1.0.0"
+    glide_version = "4.10.0"
+    retrofitVersion = '2.6.1'
+    rxAndroidVersion = '2.1.1'
+    rxJavaVersion = '2.2.13'
+    roomVersion = "2.2.0"
+    lifecycleVersion = "2.1.0"
+    lifecycleViewModelStateVersion = "1.0.0-rc01"
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'androidx.leanback:leanback:1.0.0'
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+
+    implementation "androidx.leanback:leanback:${leanback_version}"
+    // leanback-preference is an add-on that provides a settings UI for TV apps.
+    implementation "androidx.leanback:leanback-preference:${leanback_version}"
+
+    implementation "com.github.bumptech.glide:glide:${glide_version}"
+    annotationProcessor "com.github.bumptech.glide:compiler:${glide_version}"
+
+    implementation 'androidx.appcompat:appcompat:1.0.2'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.0-alpha3'
+    implementation 'com.google.android.material:material:1.0.0'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test:runner:1.1.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
+    implementation 'com.google.code.gson:gson:2.8.5'
+
+    implementation "com.squareup.retrofit2:retrofit:${retrofitVersion}"
+    implementation "com.squareup.retrofit2:converter-gson:${retrofitVersion}"
+    implementation "com.squareup.retrofit2:adapter-rxjava2:${retrofitVersion}"
+
+    implementation 'androidx.multidex:multidex:2.0.1'
+
+    implementation "androidx.room:room-runtime:${roomVersion}"
+    annotationProcessor "androidx.room:room-compiler:${roomVersion}"
+    implementation "androidx.room:room-rxjava2:${roomVersion}"
+    implementation "androidx.room:room-guava:${roomVersion}"
+    testImplementation "androidx.room:room-testing:${roomVersion}"
+
+    implementation "io.reactivex.rxjava2:rxandroid:${rxAndroidVersion}"
+    implementation "io.reactivex.rxjava2:rxjava:${rxJavaVersion}"
+
+    implementation "androidx.lifecycle:lifecycle-extensions:${lifecycleVersion}"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-savedstate:${lifecycleViewModelStateVersion}"
+    annotationProcessor "androidx.lifecycle:lifecycle-compiler:${lifecycleVersion}"
+
+    implementation 'com.google.android.material:material:1.1.0-beta02'
+}
