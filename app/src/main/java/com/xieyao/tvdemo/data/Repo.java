@@ -68,7 +68,7 @@ public class Repo {
 
     public Observable<MovieResult> getRows(List<Channel> rows) throws Exception {
         List<Observable<MovieResult>> list = new ArrayList<>();
-        for (int i = 0; i < list.size(); i++) {
+        for (int i = 0; i < rows.size(); i++) {
             list.add(getResults(rows.get(i).index));
         }
         return Observable.merge(list);

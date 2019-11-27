@@ -115,6 +115,11 @@ public class MainFragment extends BrowseFragment {
                         public void accept(MovieResult movieResult) throws Exception {
                             Log.e("TEST, onNext", movieResult.toString());
                         }
+                    }, new Consumer<Throwable>() {
+                        @Override
+                        public void accept(Throwable throwable) throws Exception {
+                            Log.e("TEST, onError", throwable.getMessage());
+                        }
                     });
         } catch (Exception e) {
             e.printStackTrace();
