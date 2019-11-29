@@ -47,14 +47,20 @@ import androidx.leanback.widget.RowPresenter;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.xieyao.tvdemo.R;
 import com.xieyao.tvdemo.data.Repo;
 import com.xieyao.tvdemo.detail.DetailsActivity;
 import com.xieyao.tvdemo.models.Channel;
+import com.xieyao.tvdemo.models.ChannelNew;
 import com.xieyao.tvdemo.models.Movie;
 import com.xieyao.tvdemo.models.MovieList;
 import com.xieyao.tvdemo.models.MovieResult;
+import com.xieyao.tvdemo.utils.Utils;
 
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Timer;
@@ -105,25 +111,8 @@ public class MainFragment extends BrowseFragment {
 
     private void loadRows() {
 
-        Repo repo = new Repo();
-        try {
-            repo.getRows(Channel.createDefaultChannels())
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new Consumer<MovieResult>() {
-                        @Override
-                        public void accept(MovieResult movieResult) throws Exception {
-                            Log.e("TEST, onNext", movieResult.toString());
-                        }
-                    }, new Consumer<Throwable>() {
-                        @Override
-                        public void accept(Throwable throwable) throws Exception {
-                            Log.e("TEST, onError", throwable.getMessage());
-                        }
-                    });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        List<ChannelNew> channels = new Repo().getChannelData(getActivity());
+        Log.e("test", "channels = " + channels);
 
         List<Movie> list = MovieList.setupMovies();
 

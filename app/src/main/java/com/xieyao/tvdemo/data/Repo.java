@@ -1,12 +1,18 @@
 package com.xieyao.tvdemo.data;
 
+import android.content.Context;
 import android.text.TextUtils;
 
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.xieyao.tvdemo.api.ApiClient;
+import com.xieyao.tvdemo.models.ChannelNew;
 import com.xieyao.tvdemo.models.MovieResult;
 import com.xieyao.tvdemo.models.Channel;
+import com.xieyao.tvdemo.utils.Utils;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -72,6 +78,14 @@ public class Repo {
             list.add(getResults(rows.get(i).index));
         }
         return Observable.merge(list);
+    }
+
+
+    public List<ChannelNew> getChannelData(Context context) {
+        String jsonString = Utils.getAssetsJson(context, "main.json");
+        Type typeOfObjectsList = new TypeToken<ArrayList<ChannelNew>>() {
+        }.getType();
+        return new Gson().fromJson(jsonString, typeOfObjectsList);
     }
 
 }

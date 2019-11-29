@@ -79,6 +79,7 @@ public final class MovieList {
         };
 
         for (int index = 0; index < title.length; ++index) {
+//        for (int index = 0; index < 2; ++index) {
             list.add(
                     buildMovieInfo(
                             title[index],
