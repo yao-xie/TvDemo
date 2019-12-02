@@ -13,6 +13,9 @@ import retrofit2.http.Query;
 public interface TmdbApi {
 
     @GET("{path1}/{path2}?")
-    Observable<MovieResult> getPopularMovies(@Path("path1") String p1, @Path("path2") String p2, @Query("page") int page);
+    Observable<MovieResult> getMovies(@Path("path1") String p1, @Path("path2") String p2, @Query("page") int page);
+
+    @GET("movie/{movieId}/similar?")
+    Observable<MovieResult> getSimilarMovies(@Path("movieId") int movieId);
 
 }

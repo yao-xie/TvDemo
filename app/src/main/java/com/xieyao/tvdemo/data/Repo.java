@@ -1,15 +1,12 @@
 package com.xieyao.tvdemo.data;
 
 import android.content.Context;
-import android.text.TextUtils;
-
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.xieyao.tvdemo.api.ApiClient;
-import com.xieyao.tvdemo.models.ChannelNew;
-import com.xieyao.tvdemo.models.MovieResult;
 import com.xieyao.tvdemo.models.Channel;
+import com.xieyao.tvdemo.models.MovieResult;
 import com.xieyao.tvdemo.utils.Utils;
 
 import java.lang.reflect.Type;
@@ -17,75 +14,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Observable;
-import io.reactivex.ObservableSource;
-import io.reactivex.functions.Function;
 
 
 public class Repo {
 
-    public Observable<MovieResult> getResults(final int index) throws Exception {
-        String path1 = null;
-        String path2 = null;
-        switch (index) {
-            case 0: {
-                path1 = "movie";
-                path2 = "popular";
-                break;
-            }
-            case 1: {
-                path1 = "movie";
-                path2 = "top_rated";
-                break;
-            }
-            case 2: {
-                path1 = "movie";
-                path2 = "upcoming";
-                break;
-            }
-            case 3: {
-                path1 = "tv";
-                path2 = "on_the_air";
-                break;
-            }
-            case 4: {
-                path1 = "tv";
-                path2 = "popular";
-                break;
-            }
-            case 5: {
-                path1 = "tv";
-                path2 = "top_rated";
-                break;
-            }
-        }
-        if (TextUtils.isEmpty(path1) || TextUtils.isEmpty(path2)) {
-            return null;
-        }
-        return ApiClient.getInstance().getService().getPopularMovies(path1, path2, 1)
-                .flatMap(new Function<MovieResult, ObservableSource<MovieResult>>() {
-                    @Override
-                    public ObservableSource<MovieResult> apply(MovieResult movieResult) throws Exception {
-                        movieResult.setIndex(index);
-                        return Observable.just(movieResult);
-                    }
-                });
-    }
-
-
-    public Observable<MovieResult> getRows(List<Channel> rows) throws Exception {
-        List<Observable<MovieResult>> list = new ArrayList<>();
-        for (int i = 0; i < rows.size(); i++) {
-            list.add(getResults(rows.get(i).index));
-        }
-        return Observable.merge(list);
-    }
-
-
-    public List<ChannelNew> getChannelData(Context context) {
+    public List<Channel> getChannels(Context context) {
         String jsonString = Utils.getAssetsJson(context, "main.json");
-        Type typeOfObjectsList = new TypeToken<ArrayList<ChannelNew>>() {
+        Type typeOfObjectsList = new TypeToken<ArrayList<Channel>>() {
         }.getType();
         return new Gson().fromJson(jsonString, typeOfObjectsList);
+    }
+
+
+    public Observable<MovieResult> getSimilarMovies(final int movieId) throws Exception {
+        if (0 == movieId) {
+            return null;
+        }
+        return ApiClient.getInstance().getService().getSimilarMovies(movieId);
     }
 
 }

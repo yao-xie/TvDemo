@@ -52,11 +52,16 @@ import com.xieyao.tvdemo.R;
 import com.xieyao.tvdemo.browse.CardPresenter;
 import com.xieyao.tvdemo.browse.MainActivity;
 import com.xieyao.tvdemo.consumption.PlaybackActivity;
+import com.xieyao.tvdemo.data.Repo;
 import com.xieyao.tvdemo.models.Movie;
-import com.xieyao.tvdemo.models.MovieList;
+import com.xieyao.tvdemo.models.MovieResult;
+import com.xieyao.tvdemo.utils.Utils;
 
-import java.util.Collections;
 import java.util.List;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 
 /*
  * LeanbackDetailsFragment extends DetailsFragment, a Wrapper fragment for leanback details screens.
@@ -68,11 +73,6 @@ public class VideoDetailsFragment extends DetailsFragment {
     private static final int ACTION_WATCH_TRAILER = 1;
     private static final int ACTION_RENT = 2;
     private static final int ACTION_BUY = 3;
-
-    private static final int DETAIL_THUMB_WIDTH = 274;
-    private static final int DETAIL_THUMB_HEIGHT = 274;
-
-    private static final int NUM_COLS = 10;
 
     private Movie mSelectedMovie;
 
@@ -88,14 +88,13 @@ public class VideoDetailsFragment extends DetailsFragment {
 
         mDetailsBackground = new DetailsFragmentBackgroundController(this);
 
-        mSelectedMovie =
-                (Movie) getActivity().getIntent().getSerializableExtra(DetailsActivity.MOVIE);
+        mSelectedMovie = (Movie) getActivity().getIntent().getParcelableExtra(DetailsActivity.MOVIE);
         if (mSelectedMovie != null) {
             mPresenterSelector = new ClassPresenterSelector();
             mAdapter = new ArrayObjectAdapter(mPresenterSelector);
             setupDetailsOverviewRow();
             setupDetailsOverviewRowPresenter();
-            setupRelatedMovieListRow();
+            requestRelatedMovieList();
             setAdapter(mAdapter);
             initializeBackground(mSelectedMovie);
             setOnItemViewClickedListener(new ItemViewClickedListener());
@@ -126,26 +125,8 @@ public class VideoDetailsFragment extends DetailsFragment {
         final DetailsOverviewRow row = new DetailsOverviewRow(mSelectedMovie);
         row.setImageDrawable(
                 ContextCompat.getDrawable(getActivity(), R.drawable.default_background));
-        // TODO: 11/26/19  
-        int width = convertDpToPixel(getActivity().getApplicationContext(), DETAIL_THUMB_WIDTH);
-        int height = convertDpToPixel(getActivity().getApplicationContext(), DETAIL_THUMB_HEIGHT);
-//        Glide.with(getActivity())
-//                .load(mSelectedMovie.getCardImageUrl())
-//                .centerCrop()
-//                .error(R.drawable.default_background)
-//                .into(new SimpleTarget<GlideDrawable>(width, height) {
-//                    @Override
-//                    public void onResourceReady(GlideDrawable resource,
-//                                                GlideAnimation<? super GlideDrawable>
-//                                                        glideAnimation) {
-//                        Log.d(TAG, "details overview card image url ready: " + resource);
-//                        row.setImageDrawable(resource);
-//                        mAdapter.notifyArrayItemRangeChanged(0, mAdapter.size());
-//                    }
-//                });
-
         Glide.with(getActivity())
-                .load(mSelectedMovie.getCardImageUrl())
+                .load(mSelectedMovie.getPosterImageUrl())
                 .centerCrop()
                 .error(R.drawable.default_background)
                 .into(new CustomTarget<Drawable>() {
@@ -186,10 +167,11 @@ public class VideoDetailsFragment extends DetailsFragment {
 
     private void setupDetailsOverviewRowPresenter() {
         // Set detail background.
-        FullWidthDetailsOverviewRowPresenter detailsPresenter =
-                new FullWidthDetailsOverviewRowPresenter(new DetailsDescriptionPresenter());
+        CustomFullWidthDetailsOverviewRowPresenter detailsPresenter =
+                new CustomFullWidthDetailsOverviewRowPresenter(new DetailsDescriptionPresenter());
         detailsPresenter.setBackgroundColor(
                 ContextCompat.getColor(getActivity(), R.color.selected_background));
+        detailsPresenter.setInitialState(FullWidthDetailsOverviewRowPresenter.STATE_SMALL);
 
         // Hook up transition element.
         FullWidthDetailsOverviewSharedElementHelper sharedElementHelper =
@@ -214,38 +196,51 @@ public class VideoDetailsFragment extends DetailsFragment {
         mPresenterSelector.addClassPresenter(DetailsOverviewRow.class, detailsPresenter);
     }
 
-    private void setupRelatedMovieListRow() {
-        String subcategories[] = {getString(R.string.related_movies)};
-        List<Movie> list = MovieList.getList();
-
-        Collections.shuffle(list);
-        ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(new CardPresenter());
-        for (int j = 0; j < NUM_COLS; j++) {
-            listRowAdapter.add(list.get(j % 5));
+    private void requestRelatedMovieList() {
+        try {
+            new Repo().getSimilarMovies(mSelectedMovie.getId())
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Consumer<MovieResult>() {
+                        @Override
+                        public void accept(MovieResult movieResult) throws Exception {
+                            Log.e("TEST", movieResult.toString());
+                            if (null != movieResult) {
+                                setupRelatedMovieListRow(movieResult.getResults());
+                            }
+                        }
+                    }, new Consumer<Throwable>() {
+                        @Override
+                        public void accept(Throwable throwable) throws Exception {
+                            Log.e("TEST", throwable.toString());
+                        }
+                    });
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+    }
 
+    private void setupRelatedMovieListRow(@Nullable List<Movie> list) {
+        if (Utils.isEmpty(list)) {
+            return;
+        }
+        String subcategories[] = {getString(R.string.related_movies)};
+        ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(new CardPresenter());
+        for (int i = 0; i < list.size(); i++) {
+            listRowAdapter.add(list.get(i));
+        }
         HeaderItem header = new HeaderItem(0, subcategories[0]);
         mAdapter.add(new ListRow(header, listRowAdapter));
         mPresenterSelector.addClassPresenter(ListRow.class, new ListRowPresenter());
     }
 
-    private int convertDpToPixel(Context context, int dp) {
-        float density = context.getResources().getDisplayMetrics().density;
-        return Math.round((float) dp * density);
-    }
-
     private final class ItemViewClickedListener implements OnItemViewClickedListener {
         @Override
-        public void onItemClicked(
-                Presenter.ViewHolder itemViewHolder,
-                Object item,
-                RowPresenter.ViewHolder rowViewHolder,
-                Row row) {
-
+        public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item, RowPresenter.ViewHolder rowViewHolder, Row row) {
             if (item instanceof Movie) {
                 Log.d(TAG, "Item: " + item.toString());
                 Intent intent = new Intent(getActivity(), DetailsActivity.class);
-                intent.putExtra(getResources().getString(R.string.movie), mSelectedMovie);
+                intent.putExtra(getResources().getString(R.string.movie), (Movie) item);
 
                 Bundle bundle =
                         ActivityOptionsCompat.makeSceneTransitionAnimation(

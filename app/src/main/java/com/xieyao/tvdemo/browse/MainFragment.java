@@ -47,28 +47,15 @@ import androidx.leanback.widget.RowPresenter;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.xieyao.tvdemo.R;
 import com.xieyao.tvdemo.data.Repo;
 import com.xieyao.tvdemo.detail.DetailsActivity;
 import com.xieyao.tvdemo.models.Channel;
-import com.xieyao.tvdemo.models.ChannelNew;
 import com.xieyao.tvdemo.models.Movie;
-import com.xieyao.tvdemo.models.MovieList;
-import com.xieyao.tvdemo.models.MovieResult;
-import com.xieyao.tvdemo.utils.Utils;
 
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Consumer;
-import io.reactivex.schedulers.Schedulers;
 
 public class MainFragment extends BrowseFragment {
     private static final String TAG = "MainFragment";
@@ -76,8 +63,6 @@ public class MainFragment extends BrowseFragment {
     private static final int BACKGROUND_UPDATE_DELAY = 300;
     private static final int GRID_ITEM_WIDTH = 200;
     private static final int GRID_ITEM_HEIGHT = 200;
-    private static final int NUM_ROWS = 6;
-    private static final int NUM_COLS = 15;
 
     private final Handler mHandler = new Handler();
     private Drawable mDefaultBackground;
@@ -110,25 +95,22 @@ public class MainFragment extends BrowseFragment {
     }
 
     private void loadRows() {
-
-        List<ChannelNew> channels = new Repo().getChannelData(getActivity());
+        List<Channel> channels = new Repo().getChannels(getActivity());
         Log.e("test", "channels = " + channels);
-
-        List<Movie> list = MovieList.setupMovies();
 
         ArrayObjectAdapter rowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
         CardPresenter cardPresenter = new CardPresenter();
 
+        final int NUM_ROWS = channels.size();
         int i;
         for (i = 0; i < NUM_ROWS; i++) {
-            if (i != 0) {
-                Collections.shuffle(list);
-            }
             ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(cardPresenter);
-            for (int j = 0; j < NUM_COLS; j++) {
-                listRowAdapter.add(list.get(j % 5));
+            Channel channel = channels.get(i);
+            List<Movie> movieItems = channel.getResults();
+            for (int j = 0; j < movieItems.size(); j++) {
+                listRowAdapter.add(movieItems.get(j));
             }
-            HeaderItem header = new HeaderItem(i, MovieList.MOVIE_CATEGORY[i]);
+            HeaderItem header = new HeaderItem(i, channel.getName());
             rowsAdapter.add(new ListRow(header, listRowAdapter));
         }
 
@@ -183,21 +165,6 @@ public class MainFragment extends BrowseFragment {
     }
 
     private void updateBackground(String uri) {
-        // TODO: 11/26/19
-        int width = mMetrics.widthPixels;
-        int height = mMetrics.heightPixels;
-//        Glide.with(getActivity())
-//                .load(uri)
-//                .centerCrop()
-//                .error(mDefaultBackground)
-//                .into(new SimpleTarget<GlideDrawable>(width, height) {
-//                    @Override
-//                    public void onResourceReady(GlideDrawable resource,
-//                                                GlideAnimation<? super GlideDrawable>
-//                                                        glideAnimation) {
-//                        mBackgroundManager.setDrawable(resource);
-//                    }
-//                });
         Glide.with(getActivity())
                 .load(uri)
                 .centerCrop()
@@ -228,7 +195,6 @@ public class MainFragment extends BrowseFragment {
         @Override
         public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
                                   RowPresenter.ViewHolder rowViewHolder, Row row) {
-
             if (item instanceof Movie) {
                 Movie movie = (Movie) item;
                 Log.d(TAG, "Item: " + item.toString());

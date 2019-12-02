@@ -16,7 +16,7 @@ public class MovieResult {
 	private int totalPages;
 
 	@SerializedName("results")
-	private List<MovieItem> results;
+	private List<Movie> results;
 
 	@SerializedName("total_results")
 	private int totalResults;
@@ -39,11 +39,11 @@ public class MovieResult {
 		return totalPages;
 	}
 
-	public void setResults(List<MovieItem> results){
+	public void setResults(List<Movie> results){
 		this.results = results;
 	}
 
-	public List<MovieItem> getResults(){
+	public List<Movie> getResults(){
 		return results;
 	}
 

@@ -19,6 +19,7 @@ android {
         buildConfigField "String", "BASE_URL", "\"http://api.themoviedb.org/3/\""
         buildConfigField "String", "BASE_URL_IMG", "\"http://image.tmdb.org/t/p/\""
         buildConfigField "String", "BASE_URL_IMG_POSTER_SIZE", "\"w342\""
+        buildConfigField "String", "BASE_URL_IMG_CARD_SIZE", "\"w342\""
         buildConfigField "String", "BASE_URL_IMG_BACKDROP_SIZE", "\"w780\""
     }
     buildTypes {
