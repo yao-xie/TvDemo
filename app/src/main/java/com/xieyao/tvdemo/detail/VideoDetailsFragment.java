@@ -14,7 +14,6 @@
 
 package com.xieyao.tvdemo.detail;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
@@ -125,6 +124,9 @@ public class VideoDetailsFragment extends DetailsFragment {
         final DetailsOverviewRow row = new DetailsOverviewRow(mSelectedMovie);
         row.setImageDrawable(
                 ContextCompat.getDrawable(getActivity(), R.drawable.default_background));
+        //fix the transition animation problem.
+        //when it firstly the view doesn't know the image size, so it7s enlarged.
+        row.setImageDrawable(null);
         Glide.with(getActivity())
                 .load(mSelectedMovie.getPosterImageUrl())
                 .centerCrop()
@@ -142,6 +144,7 @@ public class VideoDetailsFragment extends DetailsFragment {
 
                     }
                 });
+
 
         ArrayObjectAdapter actionAdapter = new ArrayObjectAdapter();
 
