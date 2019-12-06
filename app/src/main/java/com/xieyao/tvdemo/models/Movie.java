@@ -372,7 +372,7 @@ public class Movie implements Parcelable {
 
     // TODO: 12/2/19
     public String getVideoUrl() {
-        return null;
+        return "http://commondatastorage.googleapis.com/android-tv/Sample%20videos/April%20Fool's%202013/Introducing%20Google%20Nose.mp4";
     }
 
     public String getReleaseYear() {

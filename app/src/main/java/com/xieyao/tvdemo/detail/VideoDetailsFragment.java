@@ -54,6 +54,8 @@ import com.xieyao.tvdemo.consumption.PlaybackActivity;
 import com.xieyao.tvdemo.data.Repo;
 import com.xieyao.tvdemo.models.Movie;
 import com.xieyao.tvdemo.models.MovieResult;
+import com.xieyao.tvdemo.models.Trailer;
+import com.xieyao.tvdemo.models.TrailerResult;
 import com.xieyao.tvdemo.utils.Utils;
 
 import java.util.List;
@@ -74,6 +76,7 @@ public class VideoDetailsFragment extends DetailsFragment {
     private static final int ACTION_BUY = 3;
 
     private Movie mSelectedMovie;
+    private List<Trailer> mTrailerList;
 
     private ArrayObjectAdapter mAdapter;
     private ClassPresenterSelector mPresenterSelector;
@@ -94,6 +97,7 @@ public class VideoDetailsFragment extends DetailsFragment {
             setupDetailsOverviewRow();
             setupDetailsOverviewRowPresenter();
             requestRelatedMovieList();
+            requestMovieTrailers();
             setAdapter(mAdapter);
             initializeBackground(mSelectedMovie);
             setOnItemViewClickedListener(new ItemViewClickedListener());
@@ -188,9 +192,16 @@ public class VideoDetailsFragment extends DetailsFragment {
             @Override
             public void onActionClicked(Action action) {
                 if (action.getId() == ACTION_WATCH_TRAILER) {
-                    Intent intent = new Intent(getActivity(), PlaybackActivity.class);
-                    intent.putExtra(DetailsActivity.MOVIE, mSelectedMovie);
-                    startActivity(intent);
+//                    Intent intent = new Intent(getActivity(), PlaybackActivity.class);
+//                    intent.putExtra(DetailsActivity.MOVIE, mSelectedMovie);
+//                    startActivity(intent);
+                    if (!Utils.isEmpty(mTrailerList)) {
+                        Intent intent = new Intent(getActivity(), PlaybackActivity.class);
+                        intent.putExtra(DetailsActivity.TRAILER, mTrailerList.get(0));
+                        startActivity(intent);
+                    } else {
+                        Toast.makeText(getActivity(), R.string.error_no_trailers, Toast.LENGTH_SHORT).show();
+                    }
                 } else {
                     Toast.makeText(getActivity(), action.toString(), Toast.LENGTH_SHORT).show();
                 }
@@ -201,13 +212,14 @@ public class VideoDetailsFragment extends DetailsFragment {
 
     private void requestRelatedMovieList() {
         try {
-            new Repo().getSimilarMovies(mSelectedMovie.getId())
+            Repo.getInstance()
+                    .getSimilarMovies(mSelectedMovie.getId())
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new Consumer<MovieResult>() {
                         @Override
                         public void accept(MovieResult movieResult) throws Exception {
-                            Log.e("TEST", movieResult.toString());
+                            Log.e("requestRelatedMovieList", movieResult.toString());
                             if (null != movieResult) {
                                 setupRelatedMovieListRow(movieResult.getResults());
                             }
@@ -215,7 +227,7 @@ public class VideoDetailsFragment extends DetailsFragment {
                     }, new Consumer<Throwable>() {
                         @Override
                         public void accept(Throwable throwable) throws Exception {
-                            Log.e("TEST", throwable.toString());
+                            Log.e("requestRelatedMovieList", throwable.toString());
                         }
                     });
         } catch (Exception e) {
@@ -236,6 +248,32 @@ public class VideoDetailsFragment extends DetailsFragment {
         mAdapter.add(new ListRow(header, listRowAdapter));
         mPresenterSelector.addClassPresenter(ListRow.class, new ListRowPresenter());
     }
+
+    private void requestMovieTrailers() {
+        try {
+            Repo.getInstance()
+                    .getMovieTrailers(mSelectedMovie.getId())
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Consumer<TrailerResult>() {
+                        @Override
+                        public void accept(TrailerResult trailerResult) throws Exception {
+                            Log.e("requestMovieTrailers", trailerResult.toString());
+                            if (null != trailerResult) {
+                                mTrailerList = trailerResult.getResults();
+                            }
+                        }
+                    }, new Consumer<Throwable>() {
+                        @Override
+                        public void accept(Throwable throwable) throws Exception {
+                            Log.e("requestMovieTrailers", throwable.toString());
+                        }
+                    });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
     private final class ItemViewClickedListener implements OnItemViewClickedListener {
         @Override

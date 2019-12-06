@@ -2,5 +2,6 @@
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="true">themoviedb.org</domain>
         <domain includeSubdomains="true">tmdb.org</domain>
+        <domain includeSubdomains="true">googleapis.com</domain>
     </domain-config>
 </network-security-config>

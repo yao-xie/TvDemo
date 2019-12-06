@@ -25,6 +25,7 @@ import androidx.leanback.widget.PlaybackControlsRow;
 
 import com.xieyao.tvdemo.detail.DetailsActivity;
 import com.xieyao.tvdemo.models.Movie;
+import com.xieyao.tvdemo.models.Trailer;
 
 /**
  * Handles video playback with media controls.
@@ -36,22 +37,30 @@ public class PlaybackVideoFragment extends VideoSupportFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+//        final Movie movie = (Movie) getActivity().getIntent().getSerializableExtra(DetailsActivity.MOVIE);
+//
+//        VideoSupportFragmentGlueHost glueHost = new VideoSupportFragmentGlueHost(PlaybackVideoFragment.this);
+//
+//        MediaPlayerAdapter playerAdapter = new MediaPlayerAdapter(getActivity());
+//        playerAdapter.setRepeatAction(PlaybackControlsRow.RepeatAction.INDEX_NONE);
+//
+//        mTransportControlGlue = new PlaybackTransportControlGlue<>(getActivity(), playerAdapter);
+//        mTransportControlGlue.setHost(glueHost);
+//        mTransportControlGlue.setTitle(movie.getTitle());
+//        mTransportControlGlue.setSubtitle(movie.getDescription());
+//        mTransportControlGlue.playWhenPrepared();
+//        playerAdapter.setDataSource(Uri.parse(movie.getVideoUrl()));
 
-        final Movie movie =
-                (Movie) getActivity().getIntent().getSerializableExtra(DetailsActivity.MOVIE);
-
-        VideoSupportFragmentGlueHost glueHost =
-                new VideoSupportFragmentGlueHost(PlaybackVideoFragment.this);
-
+        final Trailer trailer = (Trailer) getActivity().getIntent().getSerializableExtra(DetailsActivity.TRAILER);
+        VideoSupportFragmentGlueHost glueHost = new VideoSupportFragmentGlueHost(PlaybackVideoFragment.this);
         MediaPlayerAdapter playerAdapter = new MediaPlayerAdapter(getActivity());
         playerAdapter.setRepeatAction(PlaybackControlsRow.RepeatAction.INDEX_NONE);
-
         mTransportControlGlue = new PlaybackTransportControlGlue<>(getActivity(), playerAdapter);
         mTransportControlGlue.setHost(glueHost);
-        mTransportControlGlue.setTitle(movie.getTitle());
-        mTransportControlGlue.setSubtitle(movie.getDescription());
+        mTransportControlGlue.setTitle(trailer.getName());
+        mTransportControlGlue.setSubtitle(trailer.getDescription());
         mTransportControlGlue.playWhenPrepared();
-        playerAdapter.setDataSource(Uri.parse(movie.getVideoUrl()));
+        playerAdapter.setDataSource(Uri.parse(trailer.getVideoUrl()));
     }
 
     @Override
