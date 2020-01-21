@@ -45,6 +45,7 @@ import androidx.leanback.widget.Row;
 import androidx.leanback.widget.RowPresenter;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.xieyao.tvdemo.R;
@@ -56,6 +57,8 @@ import com.xieyao.tvdemo.models.Movie;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import jp.wasabeef.glide.transformations.BlurTransformation;
 
 public class MainFragment extends BrowseFragment {
     private static final String TAG = "MainFragment";
@@ -167,7 +170,8 @@ public class MainFragment extends BrowseFragment {
     private void updateBackground(String uri) {
         Glide.with(getActivity())
                 .load(uri)
-                .centerCrop()
+                .apply(RequestOptions.bitmapTransform(new BlurTransformation(25,3)))
+//                .centerCrop()
                 .error(mDefaultBackground)
                 .into(new CustomTarget<Drawable>() {
                     @Override

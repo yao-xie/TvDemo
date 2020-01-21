@@ -44,6 +44,7 @@ import androidx.leanback.widget.Row;
 import androidx.leanback.widget.RowPresenter;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
@@ -63,6 +64,7 @@ import java.util.List;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
+import jp.wasabeef.glide.transformations.BlurTransformation;
 
 /*
  * LeanbackDetailsFragment extends DetailsFragment, a Wrapper fragment for leanback details screens.
@@ -112,7 +114,8 @@ public class VideoDetailsFragment extends DetailsFragment {
         Glide.with(getActivity())
                 .asBitmap()
                 .load(data.getBackgroundImageUrl())
-                .centerCrop()
+                .apply(RequestOptions.bitmapTransform(new BlurTransformation(25)))
+//                .centerCrop()
                 .error(R.drawable.default_background)
                 .into(new SimpleTarget<Bitmap>() {
                     @Override
