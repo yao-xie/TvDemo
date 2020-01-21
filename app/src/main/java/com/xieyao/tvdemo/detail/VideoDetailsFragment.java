@@ -114,8 +114,8 @@ public class VideoDetailsFragment extends DetailsFragment {
         Glide.with(getActivity())
                 .asBitmap()
                 .load(data.getBackgroundImageUrl())
-                .apply(RequestOptions.bitmapTransform(new BlurTransformation(25)))
-//                .centerCrop()
+//                .apply(RequestOptions.bitmapTransform(new BlurTransformation(25)))
+                .centerCrop()
                 .error(R.drawable.default_background)
                 .into(new SimpleTarget<Bitmap>() {
                     @Override
